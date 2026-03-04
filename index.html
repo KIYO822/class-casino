@@ -1,0 +1,236 @@
+html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>CLASS ROYAL CASINO</title>
+    <style>
+        :root { --gold: #d4af37; --blue: #007bff; --red: #dc3545; --bg: #050505; }
+        body { background: var(--bg); color: #fff; font-family: 'Impact', sans-serif; margin: 0; overflow: hidden; }
+　
+      /* 管理者パネル（隠し） */
+        #admin-panel {
+            position: fixed; top: 0; left: 0; width: 100%; background: rgba(20,20,20,0.98); 
+            padding: 15px; border-bottom: 2px solid var(--gold); z-index: 2000;
+            display: none; flex-direction: column; align-items: center; font-family: sans-serif;
+        }
+        .admin-row { display: flex; gap: 15px; margin-bottom: 10px; flex-wrap: wrap; justify-content: center; }
+        .coin-list { max-height: 150px; overflow-y: auto; background: #000; padding: 10px; width: 80%; border: 1px solid #444; }
+
+   /* スライド・ゲームコンテナ */
+        .game-slider { display: flex; width: 300vw; transition: transform 0.6s cubic-bezier(0.85, 0, 0.15, 1); height: 100vh; }
+        .game-page { width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+
+   .game-title { font-size: 50px; color: var(--gold); text-shadow: 0 0 20px gold; margin-bottom: 10px; }
+
+  /* 共通UI */
+        .casino-stage { transition: 1.2s cubic-bezier(0.19, 1, 0.22, 1); }
+        .zoom-L { transform: scale(1.6) translateX(18%); }
+        .zoom-R { transform: scale(1.6) translateX(-18%); }
+
+  /* 入力パネル */
+        .input-panel { background: rgba(20, 20, 20, 0.95); padding: 25px; border-radius: 20px; border: 2px solid var(--gold); z-index: 100; text-align: center; width: 450px; margin-bottom: 20px; }
+        input, select { padding: 10px; border-radius: 5px; border: 1px solid var(--gold); background: #000; color: #fff; margin: 5px; }
+
+   /* アリーナ */
+        .arena { display: flex; gap: 30px; }
+        .team-card { width: 280px; background: #111; border: 2px solid #333; border-radius: 20px; padding: 20px; position: relative; min-height: 350px; }
+        .winner-glow { border: 4px solid var(--gold) !important; box-shadow: 0 0 60px var(--gold); z-index: 50; }
+        .crown { position: absolute; top: -70px; left: 50%; transform: translateX(-50%); font-size: 80px; display: none; filter: drop-shadow(0 0 15px gold); animation: bounce 0.5s infinite alternate; }
+        @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-10px); } }
+
+   /* ベットリスト */
+        .list-container { height: 250px; overflow-y: auto; border-top: 1px solid #444; margin-top: 10px; font-family: sans-serif; font-size: 13px; }
+        .bet-row { display: flex; justify-content: space-between; padding: 5px; border-bottom: 1px solid #222; }
+
+  /* 切り替えボタン */
+        .nav-btn { position: fixed; bottom: 20px; background: rgba(212,175,55,0.2); color: gold; border: 1px solid gold; padding: 10px 20px; cursor: pointer; z-index: 500; border-radius: 50px; }
+        .btn-left { left: 20px; }
+        .btn-right { right: 20px; }
+        .admin-toggle { position: fixed; bottom: 10px; right: 10px; opacity: 0.3; cursor: pointer; z-index: 3000; font-size: 20px; }
+
+  /* 結果 */
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); display: none; z-index: 5000; flex-direction: column; align-items: center; justify-content: center; }
+        .result-card { background: #111; border: 3px solid var(--gold); padding: 40px; border-radius: 20px; text-align: center; width: 400px; }
+    </style>
+</head>
+<body>
+
+<!-- 隠し設定パネル -->
+<div id="admin-panel">
+    <h3>🛠 管理者パネル (クラスメイト厳禁)</h3>
+    <div class="admin-row">
+        見出し: <input type="text" id="adm-title" placeholder="第1レース" value="第1回 クラス杯">
+        BLUE倍率: <input type="number" id="adm-odds-L" value="2.0" step="0.1">
+        RED倍率: <input type="number" id="adm-odds-R" value="2.0" step="0.1">
+    </div>
+    <div class="admin-row">
+        次の勝者: 
+        <select id="adm-winner">
+            <option value="random">ランダム</option>
+            <option value="L">BLUE(左)勝</option>
+            <option value="R">RED(右)勝</option>
+        </select>
+        <button onclick="applySettings()" style="background:gold; font-weight:bold;">設定を反映</button>
+    </div>
+    <p>全員のコイン残高一覧:</p>
+    <div id="coin-manager" class="coin-list"></div>
+</div>
+
+<div class="admin-toggle" onclick="toggleAdmin()">⚙</div>
+
+<!-- スライダーコンテナ -->
+<div class="game-slider" id="slider">
+    <!-- 各ページはJavaScriptで生成されます -->
+</div>
+
+<button class="nav-btn btn-left" onclick="slide(-1)">◀ 前のゲーム</button>
+<button class="nav-btn btn-right" onclick="slide(1)">次のゲーム ▶</button>
+
+<div id="overlay">
+    <div class="result-card">
+        <h1 id="res-win-msg"></h1>
+        <hr border-color="#333">
+        <div id="res-list" style="text-align:left; max-height:300px; overflow-y:auto; margin:20px 0;"></div>
+        <button onclick="closeResult()" style="width:100%; padding:15px; background:var(--gold); border:none; font-weight:bold; cursor:pointer;">OK</button>
+    </div>
+</div>
+
+<script>
+    let players = {}; // {名前: 所持コイン}
+    let currentBets = [];
+    let currentIdx = 0;
+    let gameSettings = [
+        { title: "第1回 クラス杯", oddsL: 2.0, oddsR: 2.0 },
+        { title: "第2回 ハイリスク杯", oddsL: 5.0, oddsR: 1.5 },
+        { title: "最終決戦", oddsL: 10.0, oddsR: 10.0 }
+    ];
+
+    // 初期化
+    function init() {
+        const slider = document.getElementById('slider');
+        slider.innerHTML = "";
+        gameSettings.forEach((gs, i) => {
+            slider.innerHTML += `
+                <div class="game-page" id="page-${i}">
+                    <div class="game-title">${gs.title}</div>
+                    <div class="input-panel">
+                        <input type="text" id="name-${i}" placeholder="名前を入力">
+                        <input type="number" id="bet-${i}" placeholder="枚数" style="width:100px;">
+                        <select id="side-${i}">
+                            <option value="L">BLUE</option>
+                            <option value="R">RED</option>
+                        </select>
+                        <button onclick="addBet(${i})" style="padding:10px; background:var(--gold); border:none; font-weight:bold; cursor:pointer;">BET</button>
+                        <button id="start-${i}" onclick="runGamble(${i})" style="display:none; width:100%; margin-top:10px; background:#28a745; color:#fff; border:none; padding:10px; cursor:pointer;">抽選開始</button>
+                    </div>
+                    <div class="arena" id="arena-${i}">
+                        <div id="card-L-${i}" class="team-card"><div class="crown" id="crown-L-${i}">👑</div><h2 style="color:var(--blue);">BLUE (x${gs.oddsL})</h2><div id="list-L-${i}" class="list-container"></div></div>
+                        <div id="card-R-${i}" class="team-card"><div class="crown" id="crown-R-${i}">👑</div><h2 style="color:var(--red);">RED (x${gs.oddsR})</h2><div id="list-R-${i}" class="list-container"></div></div>
+                    </div>
+                </div>`;
+        });
+        updateAdminCoinList();
+    }
+
+    function toggleAdmin() {
+        const p = document.getElementById('admin-panel');
+        p.style.display = p.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    function applySettings() {
+        gameSettings[currentIdx].title = document.getElementById('adm-title').value;
+        gameSettings[currentIdx].oddsL = parseFloat(document.getElementById('adm-odds-L').value);
+        gameSettings[currentIdx].oddsR = parseFloat(document.getElementById('adm-odds-R').value);
+        init(); // 画面更新
+        slide(0);
+        toggleAdmin();
+    }
+
+    function addBet(idx) {
+        const name = document.getElementById(`name-${idx}`).value;
+        const bet = parseInt(document.getElementById(`bet-${idx}`).value);
+        const side = document.getElementById(`side-${idx}`).value;
+
+        if(!name || !bet) return;
+        if(!players[name]) players[name] = 1000; // 初参加は1000枚
+        if(players[name] < bet) return alert(name + "さんのコインが足りません！(残:" + players[name] + ")");
+
+        currentBets.push({ name, bet, side });
+        document.getElementById(`name-${idx}`).value = "";
+        document.getElementById(`bet-${idx}`).value = "";
+        
+        updateArena(idx);
+        document.getElementById(`start-${idx}`).style.display = "block";
+        updateAdminCoinList();
+    }
+
+    function updateArena(idx) {
+        const lL = document.getElementById(`list-L-${idx}`), lR = document.getElementById(`list-R-${idx}`);
+        lL.innerHTML = ""; lR.innerHTML = "";
+        currentBets.forEach(b => {
+            const row = `<div class="bet-row"><span>${b.name}</span><span>${b.bet}</span></div>`;
+            b.side === 'L' ? lL.innerHTML += row : lR.innerHTML += row;
+        });
+    }
+
+    function runGamble(idx) {
+        const admWin = document.getElementById('adm-winner').value;
+        const winSide = admWin === 'random' ? (Math.random() < 0.5 ? 'L' : 'R') : admWin;
+        const page = document.getElementById(`page-${idx}`);
+        
+        setTimeout(() => {
+            page.classList.add(winSide === 'L' ? 'zoom-L' : 'zoom-R');
+            document.getElementById(`card-${winSide}-${idx}`).classList.add('winner-glow');
+            document.getElementById(`crown-${winSide}-${idx}`).style.display = "block";
+            
+            setTimeout(() => showResult(winSide, idx), 2000);
+        }, 100);
+    }
+
+    function showResult(winSide, idx) {
+        const rate = winSide === 'L' ? gameSettings[idx].oddsL : gameSettings[idx].oddsR;
+        const overlay = document.getElementById('overlay');
+        const list = document.getElementById('res-list');
+        list.innerHTML = "";
+        
+        document.getElementById('res-win-msg').innerText = (winSide==='L'?'BLUE':'RED') + " WIN!";
+        document.getElementById('res-win-msg').style.color = (winSide==='L'?'var(--blue)':'var(--red)');
+
+        currentBets.forEach(b => {
+            const isWin = b.side === winSide;
+            const payout = isWin ? Math.floor(b.bet * rate) : 0;
+            players[b.name] += (payout - b.bet);
+            list.innerHTML += `<div style="padding:5px; border-bottom:1px solid #333;">${b.name}: ${isWin?'WIN':'LOSE'} (${payout}枚) <br><small>残高: ${players[b.name]}</small></div>`;
+        });
+        overlay.style.display = "flex";
+    }
+
+    function closeResult() {
+        document.getElementById('overlay').style.display = "none";
+        currentBets = [];
+        init(); // 状態をクリアして再描画
+        slide(0);
+        updateAdminCoinList();
+    }
+
+    function slide(dir) {
+        currentIdx = Math.max(0, Math.min(gameSettings.length - 1, currentIdx + dir));
+        document.getElementById('slider').style.transform = `translateX(-${currentIdx * 100}vw)`;
+        // 管理者パネル内の初期値を現在のゲームに合わせる
+        document.getElementById('adm-title').value = gameSettings[currentIdx].title;
+        document.getElementById('adm-odds-L').value = gameSettings[currentIdx].oddsL;
+        document.getElementById('adm-odds-R').value = gameSettings[currentIdx].oddsR;
+    }
+
+    function updateAdminCoinList() {
+        const m = document.getElementById('coin-manager');
+        m.innerHTML = Object.entries(players).map(([name, coin]) => 
+            `<div style="display:flex; justify-content:space-between; padding:2px;"><span>${name}</span><span>${coin}枚</span></div>`
+        ).join("");
+    }
+
+    init();
+</script>
+</body>
+</html>
