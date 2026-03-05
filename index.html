@@ -4,7 +4,7 @@ html
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ROYAL CLASS CASINO - SOUND & CANCEL</title>
+    <title>DYNAMIC ROYAL CASINO</title>
     <style>
         :root { --gold: #d4af37; --blue: #007bff; --red: #dc3545; --bg: #050505; }
         body { 
@@ -14,96 +14,97 @@ html
 
         /* 管理者パネル */
         #admin-panel {
-            position: fixed; top: 0; left: 0; width: 100%; background: rgba(10,10,10,0.98); 
-            padding: 15px; border-bottom: 2px solid var(--gold); z-index: 2000;
-            display: none; flex-direction: column; align-items: center; font-family: sans-serif;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(10,10,10,0.98); 
+            padding: 20px; border-bottom: 2px solid var(--gold); z-index: 2000;
+            display: none; flex-direction: column; align-items: center; font-family: sans-serif; overflow-y: auto;
         }
-        .admin-row { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; justify-content: center; }
-        .coin-list { max-height: 150px; overflow-y: auto; background: #000; padding: 10px; width: 90%; border: 1px solid #444; border-radius: 10px; }
+        .admin-section { width: 90%; max-width: 600px; background: #222; padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #444; }
+        .admin-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; justify-content: space-between; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        .coin-list { max-height: 120px; overflow-y: auto; background: #000; padding: 10px; width: 100%; border: 1px solid #444; border-radius: 10px; margin-top: 10px; }
 
-        /* ゲームステージ */
-        .game-slider { display: flex; width: 300vw; transition: transform 0.6s cubic-bezier(0.85, 0, 0.15, 1); height: 100vh; }
-        .game-page { width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        /* スライダー */
+        .game-slider { display: flex; transition: transform 0.6s cubic-bezier(0.85, 0, 0.15, 1); height: 100vh; }
+        .game-page { min-width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
         .game-title { 
-            font-size: clamp(30px, 8vw, 60px); 
+            font-size: clamp(24px, 6vw, 50px); 
             background: linear-gradient(to bottom, #fff 20%, #d4af37 50%, #8a6d3b 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 15px;
         }
 
         .casino-stage { transition: 1.2s cubic-bezier(0.19, 1, 0.22, 1); }
-        .zoom-L { transform: scale(1.6) translateX(18%); }
-        .zoom-R { transform: scale(1.6) translateX(-18%); }
+        .zoom-L { transform: scale(1.5) translateX(15%); }
+        .zoom-R { transform: scale(1.5) translateX(-15%); }
 
         .input-panel { 
             background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);
-            padding: 20px; border-radius: 30px; border: 1px solid rgba(212, 175, 55, 0.3);
-            width: 90%; max-width: 420px; margin-bottom: 20px;
+            padding: 15px; border-radius: 20px; border: 1px solid rgba(212, 175, 55, 0.3);
+            width: 90%; max-width: 380px; margin-bottom: 15px;
         }
-        input, select { padding: 10px; border-radius: 8px; border: 1px solid #444; background: #000; color: #fff; margin: 5px; }
+        input, select { padding: 8px; border-radius: 5px; border: 1px solid #444; background: #000; color: #fff; font-size: 14px; margin: 3px; }
 
-        /* ボタン類 */
-        .btn-draw { background: #28a745; color: #fff; border: none; padding: 12px; cursor: pointer; font-weight: bold; border-radius: 10px; width: 100%; margin-top: 10px; }
-        .btn-cancel { background: #666; color: #fff; border: none; padding: 8px; cursor: pointer; font-size: 12px; border-radius: 5px; width: 100%; margin-top: 5px; display: none; }
+        .arena { display: flex; gap: 15px; justify-content: center; width: 95%; }
+        .team-card { flex: 1; max-width: 250px; background: #111; border: 1px solid #333; border-radius: 20px; padding: 10px; position: relative; min-height: 300px; }
+        .winner-glow { border: 3px solid var(--gold) !important; box-shadow: 0 0 40px var(--gold); }
+        .crown { position: absolute; top: -60px; left: 50%; transform: translateX(-50%); font-size: 70px; display: none; }
 
-        /* アリーナ */
-        .arena { display: flex; gap: 20px; justify-content: center; width: 95%; }
-        .team-card { flex: 1; max-width: 280px; background: #111; border: 1px solid #333; border-radius: 25px; padding: 15px; position: relative; min-height: 350px; }
-        .winner-glow { border: 3px solid var(--gold) !important; box-shadow: 0 0 50px var(--gold); }
-        .crown { position: absolute; top: -70px; left: 50%; transform: translateX(-50%); font-size: 80px; display: none; }
+        .list-container { height: 220px; overflow-y: auto; border-top: 1px solid #333; margin-top: 10px; font-family: sans-serif; font-size: 12px; }
+        .bet-row { display: flex; justify-content: space-between; padding: 5px; border-bottom: 1px solid #1a1a1a; }
 
-        .list-container { height: 250px; overflow-y: auto; border-top: 1px solid #333; margin-top: 10px; font-family: sans-serif; font-size: 13px; }
-        .bet-row { display: flex; justify-content: space-between; padding: 6px; border-bottom: 1px solid #1a1a1a; }
-
-        .nav-btn { position: fixed; bottom: 30px; background: rgba(212,175,55,0.1); color: gold; border: 1px solid gold; padding: 10px 20px; cursor: pointer; z-index: 500; border-radius: 50px; }
-        .btn-left { left: 15px; }
-        .btn-right { right: 15px; }
+        .nav-btn { position: fixed; bottom: 20px; background: rgba(212,175,55,0.2); color: gold; border: 1px solid gold; padding: 10px 15px; cursor: pointer; z-index: 500; border-radius: 50px; }
+        .btn-left { left: 10px; }
+        .btn-right { right: 10px; }
         .admin-toggle { position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); opacity: 0.1; cursor: pointer; z-index: 3000; font-size: 24px; }
 
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); display: none; z-index: 5000; flex-direction: column; align-items: center; justify-content: center; }
-        .result-card { background: #111; border: 2px solid var(--gold); padding: 30px; border-radius: 30px; text-align: center; width: 400px; }
+        .result-card { background: #111; border: 2px solid var(--gold); padding: 25px; border-radius: 30px; text-align: center; width: 90%; max-width: 400px; }
     </style>
 </head>
 <body>
 
 <div id="admin-panel">
-    <h3>👑 ADMIN CONTROL</h3>
-    <div class="admin-row">
-        見出し: <input type="text" id="adm-title">
-        BLUE倍率: <input type="number" id="adm-odds-L" step="0.1">
-        RED倍率: <input type="number" id="adm-odds-R" step="0.1">
+    <h2 style="color:var(--gold);">🛠 DYNAMIC CONTROL</h2>
+    
+    <div class="admin-section">
+        <h3>🏠 ゲーム管理</h3>
+        <div id="game-editor-list"></div>
+        <button onclick="addNewGameConfig()" style="width:100%; background:#28a745; color:white; padding:10px; border-radius:5px; border:none; margin-top:10px; cursor:pointer;">＋ 新しいゲームを追加</button>
     </div>
-    <div class="admin-row">
-        勝敗操作: <select id="adm-winner"><option value="random">ランダム</option><option value="L">BLUE勝</option><option value="R">RED勝</option></select>
-        <button onclick="applySettings()" style="background:gold; font-weight:bold; cursor:pointer;">保存反映</button>
-        <button onclick="resetAllData()" style="background:#ff4444; color:white; border:none;">全消去</button>
+
+    <div class="admin-section">
+        <h3>🎯 次の勝敗操作 (現在のページ)</h3>
+        <select id="adm-winner" style="width:100%; padding:10px;"><option value="random">ランダム</option><option value="L">BLUE勝</option><option value="R">RED勝</option></select>
     </div>
-    <div id="coin-manager" class="coin-list"></div>
-    <button onclick="toggleAdmin()" style="margin-top:10px;">閉じる</button>
+
+    <div class="admin-section">
+        <h3>💰 コイン・名簿管理</h3>
+        <div id="coin-manager" class="coin-list"></div>
+        <button onclick="resetAllData()" style="width:100%; background:#ff4444; color:white; border:none; margin-top:10px; padding:10px; border-radius:5px; cursor:pointer;">全データをリセット</button>
+    </div>
+
+    <button onclick="toggleAdmin()" style="margin-top:20px; padding:10px 40px; border-radius:50px; cursor:pointer;">閉じる</button>
 </div>
 
 <div class="admin-toggle" onclick="toggleAdmin()">⚙</div>
 <div class="game-slider" id="slider"></div>
 
-<button class="nav-btn btn-left" onclick="slide(-1)">PREV</button>
-<button class="nav-btn btn-right" onclick="slide(1)">NEXT</button>
+<button class="nav-btn btn-left" onclick="slide(-1)">◀ PREV</button>
+<button class="nav-btn btn-right" onclick="slide(1)">NEXT ▶</button>
 
 <div id="overlay">
     <div class="result-card">
         <h1 id="res-win-msg"></h1>
-        <div id="res-list" style="text-align:left; max-height:250px; overflow-y:auto; margin:20px 0; font-family:sans-serif;"></div>
-        <button onclick="closeResult()" style="width:100%; padding:15px; background:var(--gold); border:none; font-weight:bold; cursor:pointer; border-radius:10px;">NEXT ROUND</button>
+        <div id="res-list" style="text-align:left; max-height:250px; overflow-y:auto; margin:15px 0; font-family:sans-serif;"></div>
+        <button onclick="closeResult()" style="width:100%; padding:15px; background:var(--gold); border:none; font-weight:bold; cursor:pointer; border-radius:10px;">DONE</button>
     </div>
 </div>
 
-<!-- 音声ファイル -->
 <audio id="sound-coin" src="https://assets.mixkit.co"></audio>
 
 <script>
+    // 復元
     let players = JSON.parse(localStorage.getItem('casino_p')) || {}; 
     let gameSettings = JSON.parse(localStorage.getItem('casino_s')) || [
-        { title: "ROUND 1", oddsL: 2.0, oddsR: 2.0 },
-        { title: "ROUND 2", oddsL: 3.0, oddsR: 1.5 },
-        { title: "FINAL", oddsL: 10.0, oddsR: 10.0 }
+        { title: "ROUND 1", oddsL: 2.0, oddsR: 2.0 }
     ];
     let currentBets = JSON.parse(localStorage.getItem('casino_b')) || []; 
     let currentIdx = parseInt(localStorage.getItem('casino_idx')) || 0;
@@ -118,18 +119,20 @@ html
 
     function init() {
         const slider = document.getElementById('slider');
+        slider.style.width = (gameSettings.length * 100) + "vw";
         slider.innerHTML = "";
+        
         gameSettings.forEach((gs, i) => {
             slider.innerHTML += `
                 <div class="game-page" id="page-${i}">
                     <div class="game-title">${gs.title}</div>
-                    <div class="input-panel" id="input-ui-${i}">
-                        <input type="text" id="name-${i}" placeholder="PLAYER NAME">
-                        <input type="number" id="bet-${i}" placeholder="BET" style="width:80px;">
+                    <div class="input-panel">
+                        <input type="text" id="name-${i}" placeholder="NAME">
+                        <input type="number" id="bet-${i}" placeholder="枚数" style="width:70px;">
                         <select id="side-${i}"><option value="L">BLUE</option><option value="R">RED</option></select>
-                        <button onclick="addBet(${i})" style="padding:10px; background:var(--gold); border:none; font-weight:bold; cursor:pointer; border-radius:8px;">BET</button>
-                        <button id="start-${i}" class="btn-draw" style="display:${currentBets.length > 0 ? 'block' : 'none'};" onclick="startDrawSequence(${i})">DRAW START</button>
-                        <button id="cancel-${i}" class="btn-cancel" onclick="cancelDraw(${i})">やっぱりやめる（戻る）</button>
+                        <button onclick="addBet(${i})" style="padding:8px; background:var(--gold); border:none; font-weight:bold; cursor:pointer; border-radius:5px;">BET</button>
+                        <button id="start-${i}" style="display:${currentBets.length > 0 && i === currentIdx ? 'block' : 'none'}; width:100%; margin-top:10px; background:#28a745; color:#fff; border:none; padding:10px; cursor:pointer; border-radius:5px; font-weight:bold;" onclick="startDrawSequence(${i})">DRAW</button>
+                        <button id="cancel-${i}" style="display:none; width:100%; margin-top:5px; background:#666; color:#fff; border:none; padding:5px; cursor:pointer; border-radius:5px; font-size:12px;" onclick="cancelDraw(${i})">CANCEL</button>
                     </div>
                     <div class="arena">
                         <div id="card-L-${i}" class="team-card"><div class="crown" id="crown-L-${i}">👑</div><h2 style="color:var(--blue);text-align:center;">BLUE<br><small>x${gs.oddsL}</small></h2><div id="list-L-${i}" class="list-container"></div></div>
@@ -137,9 +140,47 @@ html
                     </div>
                 </div>`;
         });
+        updateEditorList();
         updateAdminCoinList();
         updateArena(currentIdx);
         slide(0);
+    }
+
+    function updateEditorList() {
+        const list = document.getElementById('game-editor-list');
+        list.innerHTML = gameSettings.map((gs, i) => `
+            <div class="admin-row">
+                <input type="text" value="${gs.title}" onchange="updateGameTitle(${i}, this.value)" style="width:100px;">
+                L:x<input type="number" value="${gs.oddsL}" step="0.1" onchange="updateGameOdds(${i}, 'L', this.value)" style="width:40px;">
+                R:x<input type="number" value="${gs.oddsR}" step="0.1" onchange="updateGameOdds(${i}, 'R', this.value)" style="width:40px;">
+                <button onclick="removeGame(${i})" style="color:red; background:none; border:none; cursor:pointer;">✕</button>
+            </div>
+        `).join("");
+    }
+
+    function addNewGameConfig() {
+        gameSettings.push({ title: "NEW ROUND", oddsL: 2.0, oddsR: 2.0 });
+        saveData(); init();
+    }
+
+    function removeGame(i) {
+        if(gameSettings.length <= 1) return;
+        gameSettings.splice(i, 1);
+        if(currentIdx >= gameSettings.length) currentIdx = gameSettings.length - 1;
+        saveData(); init();
+    }
+
+    function updateGameTitle(i, val) { gameSettings[i].title = val; saveData(); }
+    function updateGameOdds(i, side, val) { 
+        if(side === 'L') gameSettings[i].oddsL = parseFloat(val);
+        else gameSettings[i].oddsR = parseFloat(val);
+        saveData(); 
+    }
+
+    function toggleAdmin() {
+        const p = document.getElementById('admin-panel');
+        p.style.display = (p.style.display === 'flex') ? 'none' : 'flex';
+        if(p.style.display === 'none') init(); // 閉じた時に反映
     }
 
     function addBet(idx) {
@@ -148,7 +189,7 @@ html
         const side = document.getElementById(`side-${idx}`).value;
         if(!name || isNaN(bet) || bet <= 0) return;
         if(!players[name]) players[name] = 1000;
-        if(players[name] < bet) return alert("枚数不足");
+        if(players[name] < bet) return alert("コイン不足");
         currentBets.push({ name, bet, side });
         document.getElementById(`name-${idx}`).value = "";
         document.getElementById(`bet-${idx}`).value = "";
@@ -160,8 +201,6 @@ html
     function startDrawSequence(idx) {
         document.getElementById(`start-${idx}`).style.display = "none";
         document.getElementById(`cancel-${idx}`).style.display = "block";
-        
-        // 2秒間の猶予（この間にキャンセル可能）
         drawTimer = setTimeout(() => {
             document.getElementById(`cancel-${idx}`).style.display = "none";
             runGamble(idx);
@@ -175,18 +214,11 @@ html
     }
 
     function runGamble(idx) {
-        const admWin = document.getElementById('adm-winner').value;
-        const winSide = admWin === 'random' ? (Math.random() < 0.5 ? 'L' : 'R') : admWin;
-        const page = document.getElementById(`page-${idx}`);
-        
-        page.classList.add(winSide === 'L' ? 'zoom-L' : 'zoom-R');
+        const winSide = document.getElementById('adm-winner').value === 'random' ? (Math.random() < 0.5 ? 'L' : 'R') : document.getElementById('adm-winner').value;
+        document.getElementById(`page-${idx}`).classList.add(winSide === 'L' ? 'zoom-L' : 'zoom-R');
         document.getElementById(`card-${winSide}-${idx}`).classList.add('winner-glow');
         document.getElementById(`crown-${winSide}-${idx}`).style.display = "block";
-        
-        setTimeout(() => {
-            document.getElementById('sound-coin').play();
-            showResult(winSide, idx);
-        }, 2000);
+        setTimeout(() => { document.getElementById('sound-coin').play(); showResult(winSide, idx); }, 2000);
     }
 
     function showResult(winSide, idx) {
@@ -195,45 +227,21 @@ html
         list.innerHTML = "";
         document.getElementById('res-win-msg').innerText = (winSide==='L'?'BLUE':'RED') + " WIN!";
         document.getElementById('res-win-msg').style.color = (winSide==='L'?'var(--blue)':'var(--red)');
-
         currentBets.forEach(b => {
             const isWin = b.side === winSide;
             const payout = isWin ? Math.floor(b.bet * rate) : 0;
             players[b.name] += (payout - b.bet);
-            list.innerHTML += `<div style="padding:8px; border-bottom:1px solid #333;"><strong>${b.name}</strong>: ${isWin?'WIN':'LOSE'} (${payout.toLocaleString()}枚)</div>`;
+            list.innerHTML += `<div style="padding:5px; border-bottom:1px solid #333;">${b.name}: ${isWin?'WIN':'LOSE'} (${payout}枚)</div>`;
         });
-        currentBets = [];
-        saveData();
-        document.getElementById('overlay').style.display = "flex";
+        currentBets = []; saveData(); document.getElementById('overlay').style.display = "flex";
     }
 
-    function closeResult() {
-        document.getElementById('overlay').style.display = "none";
-        init();
-    }
-
+    function closeResult() { document.getElementById('overlay').style.display = "none"; init(); }
     function slide(dir) {
         currentIdx = Math.max(0, Math.min(gameSettings.length - 1, currentIdx + dir));
         document.getElementById('slider').style.transform = `translateX(-${currentIdx * 100}vw)`;
         saveData();
     }
-
-    function toggleAdmin() {
-        const p = document.getElementById('admin-panel');
-        p.style.display = (p.style.display === 'flex') ? 'none' : 'flex';
-        document.getElementById('adm-title').value = gameSettings[currentIdx].title;
-        document.getElementById('adm-odds-L').value = gameSettings[currentIdx].oddsL;
-        document.getElementById('adm-odds-R').value = gameSettings[currentIdx].oddsR;
-    }
-
-    function applySettings() {
-        gameSettings[currentIdx].title = document.getElementById('adm-title').value;
-        gameSettings[currentIdx].oddsL = parseFloat(document.getElementById('adm-odds-L').value);
-        gameSettings[currentIdx].oddsR = parseFloat(document.getElementById('adm-odds-R').value);
-        saveData(); init(); toggleAdmin();
-    }
-
-    function resetAllData() { if(confirm("全消去？")) { localStorage.clear(); location.reload(); } }
     function updateArena(idx) {
         const lL = document.getElementById(`list-L-${idx}`), lR = document.getElementById(`list-R-${idx}`);
         if(!lL) return; lL.innerHTML = ""; lR.innerHTML = "";
@@ -242,9 +250,10 @@ html
             b.side === 'L' ? lL.innerHTML += row : lR.innerHTML += row;
         });
     }
+    function resetAllData() { if(confirm("全消去？")) { localStorage.clear(); location.reload(); } }
     function updateAdminCoinList() {
         const m = document.getElementById('coin-manager');
-        m.innerHTML = Object.entries(players).map(([name, coin]) => `<div style="padding:3px; border-bottom:1px solid #222;">${name}: ${coin.toLocaleString()}枚</div>`).join("") || "参加者なし";
+        m.innerHTML = Object.entries(players).map(([name, coin]) => `<div>${name}: ${coin}枚</div>`).join("") || "参加者なし";
     }
     init();
 </script>
